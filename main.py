@@ -8,11 +8,12 @@ import harvy_tasks as ht
 
 
 MASTER = "Vinish"
+VOICE = 0
 
 #The instance which TTS function
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
+engine.setProperty('voice', voices[VOICE].id)
 
 # A function that Pronunces the string passed to it
 def speak(text):
@@ -23,31 +24,50 @@ def speak(text):
 def wishMe():
     hour = int(datetime.datetime.now().hour)
 
-    if hour >=0 and hour < 12:
-        speak("Good Morning" + MASTER)
-    elif hour >= 12 and hour < 18:
-        speak("Good Afternoon" + MASTER)
-    else:
-        speak("Good Evening" + MASTER)
+    PROMPT = "I am Harvy a replica of jarvis. How may I help you?"
 
-    #speak("I am Harvy a replica of jarvis. How may I help you?")
+    if hour >=0 and hour < 12:
+        speak("Good Morning" + MASTER + "  " + PROMPT)
+    elif hour >= 12 and hour < 18:
+        speak("Good Afternoon" + MASTER + "  " + PROMPT)
+    else:
+        speak("Good Evening" + MASTER + "  " + PROMPT)
+
+    #speak("I am Harvy a replica of jarvis. How may I help you?") 
 
 # Takes command from the microphone(STT)
-def takeCommand():
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        r.adjust_for_ambient_noise(source, 2)
-        print("Listening.....")
-        audio = r.listen(source)
-
-    try:
-        print("Recognizing......")
-        query = r.recognize_google(audio, language= "en-in")
-        print(f"User said: {query}\n")
-    except Exception as e:
-        print("Say that again please.....")
-        query = 'None'
-    return query.lower()
+r = sr.Recognizer()
+class Command():
+    def __init__(self):
+        self
+    def mic(self):
+        with sr.Microphone() as source:
+            speak("Initializing Jarvis...")
+            r.adjust_for_ambient_noise(source, 5) 
+            speak("Initialized Jarvis...")
+            print("Listening.....")
+            audio = r.listen(source)
+        try:
+            print("Recognizing......")
+            query = r.recognize_google(audio, language= "en-in")
+            print(f"User said: {query}\n")
+        except Exception as e:
+            print("Say that again please.....")
+            query = 'None'
+        return query.lower()
+        
+    def mic_supplement(self):
+        with sr.Microphone() as source:
+            print("Listening.....")
+            audio = r.listen(source)
+        try:
+            print("Recognizing......")
+            query = r.recognize_google(audio, language= "en-in")
+            print(f"User said: {query}\n")
+        except Exception as e:
+            print("Say that again please.....")
+            query = 'None'
+        return query.lower()
 
 # # # Function that uses SMTP to send email
 # # def sendEmail(to, content):
@@ -59,11 +79,16 @@ def takeCommand():
 # #     server.close()
 
 if __name__ == "__main__":
-    speak("Initializing Jarvis...")
     wishMe()
+    calibrate = True  
 
     while True: #Logic for executing tasks
-        query = takeCommand()
+        if calibrate == True:
+            print("TT")
+            query = Command().mic()
+            calibrate = False
+        else:
+            query = Command().mic_supplement()
 
         if query != 'None':
             if 'wikipedia' in query:
@@ -91,6 +116,10 @@ if __name__ == "__main__":
             elif 'open code' in query:
                 codePath = 'C:\\Users\\Vinish\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe'
                 os.startfile(codePath)
+            elif 'bye' in query:
+                print("Good Bye Sir")
+                speak("Good Bye Sir")
+                break
 
 
 
