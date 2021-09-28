@@ -1,0 +1,5 @@
+Taskdata/
+__pycache__/
+pywhatkit_dbs.txt
+test/
+venv/
