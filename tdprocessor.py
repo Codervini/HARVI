@@ -72,7 +72,6 @@ def savetaskdata(type, file):
   if "" not in [v.get(), entry.get(), entobj.get()]:
     taskfile = open(file, "a", newline="")
     twriter = csv.writer(taskfile)
-    print(len(txtbox.get("1.0","end")))
     if len(txtbox.get("1.0","end")) <=1:
       txtbox.delete("1.0","end")
       txtbox.insert("1.0", "No description")   
@@ -151,13 +150,17 @@ exitbtn = Button(root, text="Exit", width=10, command=root.destroy).grid(row=3, 
 def taskwriter():
     root.mainloop()
 
-def taskreader():
-  with open(APP_LINK_FILE, "r", newline="") as taskfile:
+def taskreader(taskmode):
+  if taskmode == "applink":
+    file  = APP_LINK_FILE
+  elif taskmode == "weblink":
+    file = WEB_LINK_FILE
+  with open(file, "r", newline="") as taskfile:
     treader = csv.reader(taskfile) 
     next(treader)
     taskdata=[]
-    for mode, name, objective, description in treader:
-      d={"mode": mode[ objective, description]}
+    for name, objective, description in treader:
+      d={name:[ objective, description]}
       taskdata.append(d)
     return taskdata
                 
@@ -165,8 +168,8 @@ def taskreader():
 
 
 
-taskwriter()
-# for i in taskreader():
+# taskwriter()
+# for i in taskreader("weblink"):
 #   print(i)
 
 
