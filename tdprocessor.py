@@ -5,16 +5,22 @@ from tkinter import messagebox as mbx
 import os
 import sys
 
-FILE = "Taskdata/taskdata.csv"
+APP_LINK_FILE = "Taskdata/applinktaskdata.csv"
+WEB_LINK_FILE = "Taskdata/weblinktaskdata.csv"
 
 
 try:
-    with open(FILE, "r") as taskfile:
+    with open(APP_LINK_FILE, "r") as taskfile:
+        pass
+    with open(WEB_LINK_FILE, "r") as taskfile:
         pass
 except:
-    with open(FILE, "w", newline="") as taskfile:
+    with open(APP_LINK_FILE, "w", newline="") as taskfile:
         writer = csv.writer(taskfile)
-        writer.writerow(["Mode", "Name of task", "Task Objective", "Task Description"])
+        writer.writerow(["Name of task", "Task Objective", "Task Description"])
+    with open(WEB_LINK_FILE, "w", newline="") as taskfile:
+        writer = csv.writer(taskfile)
+        writer.writerow(["Name of task", "Task Objective", "Task Description"])
 
 root = Tk()
 root.title("Test app")
@@ -61,31 +67,38 @@ def restart_program():
     os.execl(python, python, * sys.argv)
 
 
-def savetaskdata(type):
+def savetaskdata(type, file):
+  """Writes the the recieved record to the appropraite files"""
   if "" not in [v.get(), entry.get(), entobj.get()]:
-    taskfile = open(FILE, "a", newline="")
+    taskfile = open(file, "a", newline="")
     twriter = csv.writer(taskfile)
-    
+    print(len(txtbox.get("1.0","end")))
+    if len(txtbox.get("1.0","end")) <=1:
+      txtbox.delete("1.0","end")
+      txtbox.insert("1.0", "No description")   
     if type == "SE":
-      TStaskmode.set(v.get())
       TStaskname.set(entry.get())
       TStaskloc.set(entobj.get())
       TStaskdesc.set(txtbox.get('1.0', 'end-1c'))
-      twriter.writerow([TStaskmode.get(), TStaskname.get().lower(), TStaskloc.get(), TStaskdesc.get()])
+      twriter.writerow([TStaskname.get().lower(), TStaskloc.get(), TStaskdesc.get()])
       taskfile.close()
       root.destroy()
     elif type == "SA":
-      TStaskmode.set(v.get())
       TStaskname.set(entry.get())
       TStaskloc.set(entobj.get())
       TStaskdesc.set(txtbox.get('1.0', 'end-1c'))
-      twriter.writerow([TStaskmode.get(), TStaskname.get().lower(), TStaskloc.get(), TStaskdesc.get()])
+      twriter.writerow([TStaskname.get().lower(), TStaskloc.get(), TStaskdesc.get()])
       taskfile.flush()
       restart_program()
   else:
     mbx.showerror(title="Error", message="One or more fields not filed!")
 
- 
+def file_decider(mode, operationtype):
+  if mode == "applink":
+    savetaskdata(operationtype, APP_LINK_FILE)
+  elif mode == "weblink":
+    savetaskdata(operationtype, WEB_LINK_FILE)
+
 
 
 
@@ -125,8 +138,8 @@ txtbox = Text(txtboxframe, width=25, height=5)
 txtbox.grid(padx=8, pady=10)
 
 
-saveandexitbtn = Button(root, text="Save and Exit", width=10, command=lambda: savetaskdata("SE")).grid(row= 0 , column=1, padx=5)
-addanotherbtn = Button(root, text="Add Another", width=10, command=lambda: savetaskdata("SA")).grid(row=0, column=1, pady=(70,0))
+saveandexitbtn = Button(root, text="Save and Exit", width=10, command=lambda: file_decider(v.get(),"SE")).grid(row= 0 , column=1, padx=5)
+addanotherbtn = Button(root, text="Add Another", width=10, command=lambda: file_decider(v.get(), "SA")).grid(row=0, column=1, pady=(70,0))
 exitbtn = Button(root, text="Exit", width=10, command=root.destroy).grid(row=3, column=1)
 
 
@@ -138,12 +151,23 @@ exitbtn = Button(root, text="Exit", width=10, command=root.destroy).grid(row=3, 
 def taskwriter():
     root.mainloop()
 
-            
+def taskreader():
+  with open(APP_LINK_FILE, "r", newline="") as taskfile:
+    treader = csv.reader(taskfile) 
+    next(treader)
+    taskdata=[]
+    for mode, name, objective, description in treader:
+      d={"mode": mode[ objective, description]}
+      taskdata.append(d)
+    return taskdata
+                
 
 
 
 
 taskwriter()
+# for i in taskreader():
+#   print(i)
 
 
 
