@@ -1,4 +1,4 @@
-PyAudio @ file:///C:/Users/Vinish/Downloads/PyAudio-0.2.11-cp39-cp39-win_amd64.whl
+./resources/PyAudio-0.2.11-cp39-cp39-win_amd64.whl
 pyttsx3==2.90
 requests==2.26.0
 SpeechRecognition==3.8.1
