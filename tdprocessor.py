@@ -4,6 +4,10 @@ from tkinter import filedialog as fd
 from tkinter import messagebox as mbx
 import os
 import sys
+import subprocess
+import pickle
+import getpass
+import win32com.client 
 
 APP_LINK_FILE = "Taskdata/applinktaskdata.csv"
 WEB_LINK_FILE = "Taskdata/weblinktaskdata.csv"
@@ -14,16 +18,17 @@ try:
         pass
     with open(WEB_LINK_FILE, "r") as taskfile:
         pass
-except:
-    with open(APP_LINK_FILE, "w", newline="") as taskfile:
+except FileNotFoundError:
+  os.makedirs("Taskdata")
+  with open(APP_LINK_FILE, "w", newline="") as taskfile:
         writer = csv.writer(taskfile)
-        writer.writerow(["Name of task", "Task Objective", "Task Description"])
-    with open(WEB_LINK_FILE, "w", newline="") as taskfile:
-        writer = csv.writer(taskfile)
-        writer.writerow(["Name of task", "Task Objective", "Task Description"])
+        writer.writerow(["Name of task", "Task Objective", "Task Description", "Mode of Adding"])
+  with open(WEB_LINK_FILE, "w", newline="") as taskfile:
+      writer = csv.writer(taskfile)
+      writer.writerow(["Name of task", "Task Objective", "Task Description", "Mode of Adding"])
 
 root = Tk()
-root.title("Test app")
+root.title("Task Adder")
 root.resizable(False, False)
 
 TStaskmode = StringVar(root)
@@ -79,14 +84,14 @@ def savetaskdata(type, file):
       TStaskname.set(entry.get())
       TStaskloc.set(entobj.get())
       TStaskdesc.set(txtbox.get('1.0', 'end-1c'))
-      twriter.writerow([TStaskname.get().lower(), TStaskloc.get(), TStaskdesc.get()])
+      twriter.writerow([TStaskname.get().lower(), TStaskloc.get(), TStaskdesc.get(), "User Added"])
       taskfile.close()
       root.destroy()
     elif type == "SA":
       TStaskname.set(entry.get())
       TStaskloc.set(entobj.get())
       TStaskdesc.set(txtbox.get('1.0', 'end-1c'))
-      twriter.writerow([TStaskname.get().lower(), TStaskloc.get(), TStaskdesc.get()])
+      twriter.writerow([TStaskname.get().lower(), TStaskloc.get(), TStaskdesc.get(), "User Added"])
       taskfile.flush()
       restart_program()
   else:
@@ -98,7 +103,72 @@ def file_decider(mode, operationtype):
   elif mode == "weblink":
     savetaskdata(operationtype, WEB_LINK_FILE)
 
+def dir_cmd_getter(keyword : str):
 
+  command = f'dir \"{keyword}*.exe"/s'
+  results = subprocess.Popen(command, shell=True, cwd='C:\\', stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+  stdout, stderr = results.communicate()
+  print(stdout, stderr)
+
+def lnk_location_getter():
+  try:
+      os.mkdir(".appdata")
+  except FileExistsError:
+      pass
+
+  username = getpass.getuser()
+  FILE = ".appdata/cmdlnkdata.dat"
+  DIRLIST = ['C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs',
+          f'C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs'
+          ]
+  loclist = []
+
+  with open(APP_LINK_FILE, "r", newline="") as file:
+    reader = csv.reader(file)
+    for i in reader:
+      if i[3] == "User Added":
+        with open(".appdata/tempcsv.csv", "a", newline="") as f:
+          writer = csv.writer(f)
+          writer.writerow(i)
+
+  for i in DIRLIST:
+      with open(FILE,  "wb") as f:
+          c = 'dir \"*.lnk"/s'
+          results = subprocess.Popen(c, shell=True, cwd=i, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+          stdout, stderr = results.communicate()
+          pickle.dump(stdout,f)
+      with open(FILE,  "rb") as f:
+          bin = pickle.load(f)
+          bin_list =  bin.split("\n")
+          for i in bin_list:
+              if i != " ":
+                  # print(i)
+                  if "Directory of" in i:
+                      i.lstrip()
+                      abs_path = i [14:]
+                  if '.lnk' in i:
+                      str_list = i.split("         ")
+                      whitespace_index = str_list[1].lstrip().index(" ")
+                      lnk_file = str_list[1].lstrip() [whitespace_index+1:]
+                      shell = win32com.client.Dispatch("WScript.Shell")
+                      shortcut = shell.CreateShortCut(f'{abs_path}\{lnk_file}')
+                      if len(shortcut.Targetpath) != 0:
+                        loclist.append([lnk_file[:len(lnk_file)-4].lower(), shortcut.Targetpath, "No description", "Program Added"])
+
+      with open(APP_LINK_FILE, "w", newline="") as taskfile:
+        twriter = csv.writer(taskfile)
+        twriter.writerows(loclist)
+      templist = []
+      with open(".appdata/tempcsv.csv", "r", newline="") as f:
+        read = csv.reader(f)
+        for i in read:
+          templist.append(i)
+      with open(APP_LINK_FILE, "a", newline="") as taskfile:
+        twriter = csv.writer(taskfile)
+        twriter.writerows(templist)
+
+
+        
 
 
 # Mode Choices
@@ -166,9 +236,12 @@ def taskreader(taskmode):
                 
 
 
+lnk_location_getter()
+# dir_cmd_getter("zoom")
 
+#cmd_dir_processor()
 
-# taskwriter()
+#taskwriter()
 # for i in taskreader("weblink"):
 #   print(i)
 
