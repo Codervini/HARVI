@@ -105,12 +105,15 @@ def file_decider(mode, operationtype):
 
 
 def get_app_locations():
+  username = getpass.getuser()
   try:
+      # os.chdir(f"c:\\users\\{username}")
       os.mkdir(".appdata")
+      os.system('attrib +h ".appdata"')
   except FileExistsError:
       pass
 
-  username = getpass.getuser()
+  
   DIRLIST = ['C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs',
           f'C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs'
           ]
@@ -229,7 +232,7 @@ def taskreader(taskmode):
                 
 
 
-#get_app_locations()
+get_app_locations()
 # dir_cmd_getter("zoom")
 
 #cmd_dir_processor()
