@@ -103,21 +103,14 @@ def file_decider(mode, operationtype):
   elif mode == "weblink":
     savetaskdata(operationtype, WEB_LINK_FILE)
 
-def dir_cmd_getter(keyword : str):
 
-  command = f'dir \"{keyword}*.exe"/s'
-  results = subprocess.Popen(command, shell=True, cwd='C:\\', stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-  stdout, stderr = results.communicate()
-  print(stdout, stderr)
-
-def lnk_location_getter():
+def get_app_locations():
   try:
       os.mkdir(".appdata")
   except FileExistsError:
       pass
 
   username = getpass.getuser()
-  FILE = ".appdata/cmdlnkdata.dat"
   DIRLIST = ['C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs',
           f'C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs'
           ]
@@ -132,12 +125,12 @@ def lnk_location_getter():
           writer.writerow(i)
 
   for i in DIRLIST:
-      with open(FILE,  "wb") as f:
+      with open(".appdata/cmdlnkdata.dat",  "wb") as f:
           c = 'dir \"*.lnk"/s'
           results = subprocess.Popen(c, shell=True, cwd=i, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
           stdout, stderr = results.communicate()
           pickle.dump(stdout,f)
-      with open(FILE,  "rb") as f:
+      with open(".appdata/cmdlnkdata.dat",  "rb") as f:
           bin = pickle.load(f)
           bin_list =  bin.split("\n")
           for i in bin_list:
@@ -153,22 +146,22 @@ def lnk_location_getter():
                       shell = win32com.client.Dispatch("WScript.Shell")
                       shortcut = shell.CreateShortCut(f'{abs_path}\{lnk_file}')
                       if len(shortcut.Targetpath) != 0:
-                        loclist.append([lnk_file[:len(lnk_file)-4].lower(), shortcut.Targetpath, "No description", "Program Added"])
-
+                        loclist.append([lnk_file[:len(lnk_file)-4].lower(), shortcut.Targetpath, "No description", "Program Added"])          
       with open(APP_LINK_FILE, "w", newline="") as taskfile:
         twriter = csv.writer(taskfile)
+        twriter.writerow(["Name of task", "Task Objective", "Task Description", "Mode of Adding"])
         twriter.writerows(loclist)
       templist = []
-      with open(".appdata/tempcsv.csv", "r", newline="") as f:
-        read = csv.reader(f)
-        for i in read:
-          templist.append(i)
+      try: 
+        with open(".appdata/tempcsv.csv", "r", newline="") as f:
+          read = csv.reader(f)
+          for i in read:
+            templist.append(i)
+      except FileNotFoundError:
+        pass
       with open(APP_LINK_FILE, "a", newline="") as taskfile:
         twriter = csv.writer(taskfile)
         twriter.writerows(templist)
-
-
-        
 
 
 # Mode Choices
@@ -236,7 +229,7 @@ def taskreader(taskmode):
                 
 
 
-lnk_location_getter()
+#get_app_locations()
 # dir_cmd_getter("zoom")
 
 #cmd_dir_processor()
