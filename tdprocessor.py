@@ -20,7 +20,7 @@ try:
     with open(WEB_LINK_FILE, "r") as taskfile:
         pass
 except FileNotFoundError:
-  os.makedirs("Taskdata")
+  os.makedirs(".harvidata")
   with open(APP_LINK_FILE, "w", newline="") as taskfile:
         writer = csv.writer(taskfile)
         writer.writerow(["Name of task", "Task Objective", "Task Description", "Mode of Adding"])
@@ -287,6 +287,7 @@ def taskreader(taskmode):
 
 
 get_app_locations()
+write_app_locations()
 # dir_cmd_getter("zoom")
 
 #cmd_dir_processor()
