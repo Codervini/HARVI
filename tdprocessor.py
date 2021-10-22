@@ -9,9 +9,8 @@ import pickle
 import getpass
 import win32com.client 
 
-
-APP_LINK_FILE = ".harvidata/applinktaskdata.csv"
-WEB_LINK_FILE = ".harvidata/weblinktaskdata.csv"
+APP_LINK_FILE = "Taskdata/applinktaskdata.csv"
+WEB_LINK_FILE = "Taskdata/weblinktaskdata.csv"
 
 
 try:
@@ -106,59 +105,6 @@ def file_decider(mode, operationtype):
 
 
 def get_app_locations():
-  '''
-  returns the list of all the installed programs added in the start menu
-  '''
-  path_list = []  # list of all the exe file locations
-  username = getpass.getuser()
-  shell = win32com.client.Dispatch("WScript.Shell")
-
-  DIRLIST = ['C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs',
-             f'C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs']
-
-  for dirs in DIRLIST:
-      for (dirpath, dirnames, filenames) in os.walk(dirs):
-          for name in filenames:
-              if name.endswith(".lnk"):
-                  path = os.path.join(dirpath, name)
-                  shortcut = shell.CreateShortCut(path)
-                  target_path = shortcut.Targetpath
-                  if target_path.endswith(".exe"):
-                    path_list.append(shortcut.Targetpath)
-  return path_list
-
-
-def write_app_locations():
-  '''
-  void function writes all the app locations to a csv
-  '''
-  path_list = get_app_locations()
-  write_list = []
-
-  # create .harvidata directory
-  try:
-      # os.chdir(f"c:\\users\\{username}")
-      os.mkdir(".harvidata")
-      os.system('attrib +h ".harvidata"')
-  except FileExistsError:
-      pass
-
-  # creating a list of rows to write to the csv
-  for path in path_list:
-      head_tail = os.path.split(path)
-      task_name = head_tail[1].split(".")[0].lower()
-      write_list.append([task_name, path, "Program Added"])
-  
-  # Creating app_link csv
-  with open(APP_LINK_FILE, "w", newline="") as taskfile:
-    twriter = csv.writer(taskfile)
-    twriter.writerow(["Name of task", "Task path", "Mode of Adding"])
-    twriter.writerows(write_list)
-  
-
-
-
-def get_app_locations_depreciated():
   username = getpass.getuser()
   try:
       # os.chdir(f"c:\\users\\{username}")
