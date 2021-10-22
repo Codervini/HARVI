@@ -146,7 +146,7 @@ def write_app_locations():
   # creating a list of rows to write to the csv
   for path in path_list:
       head_tail = os.path.split(path)
-      task_name = head_tail[1].split(".")[0]
+      task_name = head_tail[1].split(".")[0].lower()
       write_list.append([task_name, path, "Program Added"])
   
   # Creating app_link csv
