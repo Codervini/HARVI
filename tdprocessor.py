@@ -123,8 +123,9 @@ def get_app_locations():
                   path = os.path.join(dirpath, name)
                   shortcut = shell.CreateShortCut(path)
                   target_path = shortcut.Targetpath
-                  if target_path.endswith(".exe"):
-                    path_list.append(shortcut.Targetpath)
+                  if target_path.endswith(".exe") or target_path.endswith(".EXE") or target_path.endswith(".msc"):
+                    filename = (name.split(".")[0]).lower()
+                    path_list.append((filename, shortcut.Targetpath))
   return path_list
 
 
@@ -144,15 +145,15 @@ def write_app_locations():
       pass
 
   # creating a list of rows to write to the csv
-  for path in path_list:
+  for name, path in path_list:
       head_tail = os.path.split(path)
-      task_name = head_tail[1].split(".")[0].lower()
-      write_list.append([task_name, path, "Program Added"])
+      # task_name = head_tail[1].split(".")[0].lower()
+      write_list.append([name, path, "No description", "Program Added"])
   
   # Creating app_link csv
   with open(APP_LINK_FILE, "w", newline="") as taskfile:
     twriter = csv.writer(taskfile)
-    twriter.writerow(["Name of task", "Task path", "Mode of Adding"])
+    twriter.writerow(["Name of task", "Task path", "Task Description", "Mode of Adding"])
     twriter.writerows(write_list)
   
 
