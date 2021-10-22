@@ -109,7 +109,7 @@ def get_app_locations():
   '''
   returns the list of all the installed programs added in the start menu
   '''
-  link_list = []  # list of all the exe file locations
+  path_list = []  # list of all the exe file locations
   username = getpass.getuser()
   shell = win32com.client.Dispatch("WScript.Shell")
 
@@ -122,16 +122,19 @@ def get_app_locations():
               if name.endswith(".lnk"):
                   path = os.path.join(dirpath, name)
                   shortcut = shell.CreateShortCut(path)
-                  link_list.append(shortcut.Targetpath)
-  return link_list
+                  target_path = shortcut.Targetpath
+                  if target_path.endswith(".exe"):
+                    path_list.append(shortcut.Targetpath)
+  return path_list
 
 
 def write_app_locations():
   '''
   void function writes all the app locations to a csv
   '''
-  link_list = get_app_locations()
-
+  path_list = get_app_locations()
+  write_list = []
+  
   # create .harvidata directory
   try:
       # os.chdir(f"c:\\users\\{username}")
@@ -139,13 +142,18 @@ def write_app_locations():
       os.system('attrib +h ".harvidata"')
   except FileExistsError:
       pass
-  
 
+  # creates a list of rows to write to the csv
+  for path in path_list:
+      head_tail = os.path.split(path)
+      task_name = head_tail[1].split(".")[0]
+      write_list.append([task_name, path, "Program Added"])
+  
+  # Creating app_link csv
   with open(APP_LINK_FILE, "w", newline="") as taskfile:
     twriter = csv.writer(taskfile)
-    twriter.writerow(["Name of task", "Task link", "Mode of Adding"])
-    # twriter.writerows(loclist)
-    templist = []
+    twriter.writerow(["Name of task", "Task path", "Mode of Adding"])
+    twriter.writerows(write_list)
   
 
 
