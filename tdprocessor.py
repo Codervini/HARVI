@@ -9,8 +9,9 @@ import pickle
 import getpass
 import win32com.client 
 
-APP_LINK_FILE = "Taskdata/applinktaskdata.csv"
-WEB_LINK_FILE = "Taskdata/weblinktaskdata.csv"
+
+APP_LINK_FILE = ".harvidata/applinktaskdata.csv"
+WEB_LINK_FILE = ".harvidata/weblinktaskdata.csv"
 
 
 try:
@@ -105,6 +106,51 @@ def file_decider(mode, operationtype):
 
 
 def get_app_locations():
+  '''
+  returns the list of all the installed programs added in the start menu
+  '''
+  link_list = []  # list of all the exe file locations
+  username = getpass.getuser()
+  shell = win32com.client.Dispatch("WScript.Shell")
+
+  DIRLIST = ['C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs',
+             f'C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs']
+
+  for dirs in DIRLIST:
+      for (dirpath, dirnames, filenames) in os.walk(dirs):
+          for name in filenames:
+              if name.endswith(".lnk"):
+                  path = os.path.join(dirpath, name)
+                  shortcut = shell.CreateShortCut(path)
+                  link_list.append(shortcut.Targetpath)
+  return link_list
+
+
+def write_app_locations():
+  '''
+  void function writes all the app locations to a csv
+  '''
+  link_list = get_app_locations()
+
+  # create .harvidata directory
+  try:
+      # os.chdir(f"c:\\users\\{username}")
+      os.mkdir(".harvidata")
+      os.system('attrib +h ".harvidata"')
+  except FileExistsError:
+      pass
+  
+
+  with open(APP_LINK_FILE, "w", newline="") as taskfile:
+    twriter = csv.writer(taskfile)
+    twriter.writerow(["Name of task", "Task link", "Mode of Adding"])
+    # twriter.writerows(loclist)
+    templist = []
+  
+
+
+
+def get_app_locations_depreciated():
   username = getpass.getuser()
   try:
       # os.chdir(f"c:\\users\\{username}")
