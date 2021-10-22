@@ -134,7 +134,7 @@ def write_app_locations():
   '''
   path_list = get_app_locations()
   write_list = []
-  
+
   # create .harvidata directory
   try:
       # os.chdir(f"c:\\users\\{username}")
@@ -143,7 +143,7 @@ def write_app_locations():
   except FileExistsError:
       pass
 
-  # creates a list of rows to write to the csv
+  # creating a list of rows to write to the csv
   for path in path_list:
       head_tail = os.path.split(path)
       task_name = head_tail[1].split(".")[0]
