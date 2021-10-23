@@ -21,6 +21,7 @@ try:
         pass
 except FileNotFoundError:
   os.makedirs(".harvidata")
+  os.system('attrib +h ".harvidata"')
   with open(APP_LINK_FILE, "w", newline="") as taskfile:
         writer = csv.writer(taskfile)
         writer.writerow(["Name of task", "Task Objective", "Task Description", "Mode of Adding"])
@@ -157,71 +158,7 @@ def write_app_locations():
     twriter.writerows(write_list)
   
 
-
-
-def get_app_locations_depreciated():
-  username = getpass.getuser()
-  try:
-      # os.chdir(f"c:\\users\\{username}")
-      os.mkdir(".appdata")
-      os.system('attrib +h ".appdata"')
-  except FileExistsError:
-      pass
-
   
-  DIRLIST = ['C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs',
-          f'C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs'
-          ]
-  loclist = []
-
-  with open(APP_LINK_FILE, "r", newline="") as file:
-    reader = csv.reader(file)
-    for i in reader:
-      if i[3] == "User Added":
-        with open(".appdata/tempcsv.csv", "a", newline="") as f:
-          writer = csv.writer(f)
-          writer.writerow(i)
-
-  for i in DIRLIST:
-      with open(".appdata/cmdlnkdata.dat",  "wb") as f:
-          c = 'dir \"*.lnk"/s'
-          results = subprocess.Popen(c, shell=True, cwd=i, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-          stdout, stderr = results.communicate()
-          pickle.dump(stdout,f)
-      with open(".appdata/cmdlnkdata.dat",  "rb") as f:
-          bin = pickle.load(f)
-          bin_list =  bin.split("\n")
-          for i in bin_list:
-              if i != " ":
-                  # print(i)
-                  if "Directory of" in i:
-                      i.lstrip()
-                      abs_path = i [14:]
-                  if '.lnk' in i:
-                      str_list = i.split("         ")
-                      whitespace_index = str_list[1].lstrip().index(" ")
-                      lnk_file = str_list[1].lstrip() [whitespace_index+1:]
-                      shell = win32com.client.Dispatch("WScript.Shell")
-                      shortcut = shell.CreateShortCut(f'{abs_path}\{lnk_file}')
-                      if len(shortcut.Targetpath) != 0:
-                        loclist.append([lnk_file[:len(lnk_file)-4].lower(), shortcut.Targetpath, "No description", "Program Added"])          
-      with open(APP_LINK_FILE, "w", newline="") as taskfile:
-        twriter = csv.writer(taskfile)
-        twriter.writerow(["Name of task", "Task Objective", "Task Description", "Mode of Adding"])
-        twriter.writerows(loclist)
-      templist = []
-      try: 
-        with open(".appdata/tempcsv.csv", "r", newline="") as f:
-          read = csv.reader(f)
-          for i in read:
-            templist.append(i)
-      except FileNotFoundError:
-        pass
-      with open(APP_LINK_FILE, "a", newline="") as taskfile:
-        twriter = csv.writer(taskfile)
-        twriter.writerows(templist)
-
-
 # Mode Choices
 radframe = LabelFrame(root, text= "Mode: ", height=100, width=100)
 radframe.grid(padx=10, pady=10)
