@@ -3,4 +3,4 @@ __pycache__/
 pywhatkit_dbs.txt
 test/
 venv/
-.appdata/
+.harvidata/
