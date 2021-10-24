@@ -4,8 +4,6 @@ from tkinter import filedialog as fd
 from tkinter import messagebox as mbx
 import os
 import sys
-import subprocess
-import pickle
 import getpass
 import win32com.client 
 
@@ -151,13 +149,23 @@ def write_app_locations():
       # task_name = head_tail[1].split(".")[0].lower()
       write_list.append([name, path, "No description", "Program Added"])
   
+  # reading the csv files for user added tasks and appending them to a list
+  userprogam_list = []
+
+  with open(APP_LINK_FILE, "r", newline="") as taskfile:
+    reader = csv.reader(taskfile)
+    for i in reader:
+      if i[3] == "User Added":
+        userprogam_list.append(i)
+  
   # Creating app_link csv
   with open(APP_LINK_FILE, "w", newline="") as taskfile:
     twriter = csv.writer(taskfile)
     twriter.writerow(["Name of task", "Task path", "Task Description", "Mode of Adding"])
+    write_list.extend(userprogam_list)
     twriter.writerows(write_list)
-  
 
+  
   
 # Mode Choices
 radframe = LabelFrame(root, text= "Mode: ", height=100, width=100)
@@ -224,11 +232,8 @@ def taskreader(taskmode):
                 
 
 
-get_app_locations()
 write_app_locations()
-# dir_cmd_getter("zoom")
 
-#cmd_dir_processor()
 
 #taskwriter()
 # for i in taskreader("weblink"):
