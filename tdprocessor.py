@@ -214,9 +214,11 @@ exitbtn = Button(root, text="Exit", width=10, command=root.destroy).grid(row=3, 
 
 
 def taskwriter():
-    root.mainloop()
+  ''' Opens a GUI app which can be used to add task data manually '''
+  root.mainloop()
 
 def taskreader(taskmode):
+  ''' Reads the csv files and returns a dictionary of tasks'''
   if taskmode == "applink":
     file  = APP_LINK_FILE
   elif taskmode == "weblink":
@@ -225,18 +227,18 @@ def taskreader(taskmode):
     treader = csv.reader(taskfile) 
     next(treader)
     taskdata=[]
-    for name, objective, description in treader:
-      d={name:[ objective, description]}
+    for name, path, description, addingmode in treader:
+      d={name:[path, description]}
       taskdata.append(d)
     return taskdata
                 
 
 
-write_app_locations()
+#write_app_locations()
 
 
 #taskwriter()
-# for i in taskreader("weblink"):
+# for i in taskreader("applink"):
 #   print(i)
 
 
