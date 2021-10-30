@@ -1,4 +1,4 @@
-# HARVY - Your personal assistant
+# HARVI - Your personal assistant
 
-HARVY does what you would expect from JARVIS
+HARVI is a low-key replica of voice assisants like Alexa, Google assitant
 
